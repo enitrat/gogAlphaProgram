@@ -14,7 +14,7 @@ export default async function verify(req, res) {
     if (!user) {
       res.status(500);
     } else {
-      const decodedAddress = ethers.utils.verifyMessage(user.nonce.toString(), signature)
+      const decodedAddress = ethers.utils.verifyMessage("Sign in with ethereum : " + user.nonce.toString(), signature)
       if (address.toLowerCase() === decodedAddress.toLowerCase()) authenticated = true
       res.status(200).json({authenticated})
     }

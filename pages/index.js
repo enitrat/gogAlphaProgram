@@ -9,6 +9,7 @@ const ConnectWallet = () => {
   const [account, setAccount] = useState('')
   const [connection, setConnection] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
+
   // const [rawProvider,setRawProvider]=useState(undefined);
 
   async function getWeb3Modal() {
@@ -50,7 +51,7 @@ const ConnectWallet = () => {
     const user = await authData.json()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
-    const signature = await signer.signMessage(user.nonce.toString())
+    const signature = await signer.signMessage("Sign in with ethereum : " + user.nonce.toString())
     const response = await fetch(`/api/verify?address=${account}&signature=${signature}`)
     const data = await response.json()
     setLoggedIn(data.authenticated)
@@ -79,7 +80,7 @@ const ConnectWallet = () => {
       device: device,
       os: os,
       info: info,
-  };
+    };
     const strData = JSON.stringify(formData)
     const signature = await signer.signMessage(strData)
     const response = await fetch("/api/data", {
@@ -88,9 +89,9 @@ const ConnectWallet = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        address:account,
-        signature:signature,
-        formData:formData,
+        address: account,
+        signature: signature,
+        formData: formData,
       })
     });
     const res = await response.json()
@@ -104,6 +105,14 @@ const ConnectWallet = () => {
 
   }
 
+  const exportData = async () => {
+    const response= await fetch(`/api/exportData`)
+    const blob = await response.blob();
+    var url = window.URL.createObjectURL(blob);
+    window.open("/api/exportData","_blank");
+    URL.revokeObjectURL("/api/exportData")
+  }
+
   return (
     <div style={container}>
       {
@@ -115,73 +124,77 @@ const ConnectWallet = () => {
         </div>
       )}
       {
-        loggedIn && <form onSubmit={sendData}>
-          <FormControl id='name'>
-            <FormLabel>Name</FormLabel>
-            <Input type='text'
-                   placeholder={"your name"}
-                   name={"name"}
-            />
-            <FormHelperText>Your name</FormHelperText>
-          </FormControl>
-          <br/>
-          <FormControl id='discord_id'>
-            <FormLabel>Your discord id</FormLabel>
-            <Input type='text'
-                   placeholder={"discord id"}
-                   name={"discord_id"}
-            />
-          </FormControl>
-          <br/>
-          <FormControl id='email'>
-            <FormLabel>Your Email</FormLabel>
-            <Input type='text'
-                   placeholder={"example@example.com"}
-                   name={"email"}
+        loggedIn && <div>
+          <form onSubmit={sendData}>
+            <FormControl id='name'>
+              <FormLabel>Name</FormLabel>
+              <Input type='text'
+                     placeholder={"your name"}
+                     name={"name"}
+              />
+              <FormHelperText>Your name</FormHelperText>
+            </FormControl>
+            <br/>
+            <FormControl id='discord_id'>
+              <FormLabel>Your discord id</FormLabel>
+              <Input type='text'
+                     placeholder={"discord id"}
+                     name={"discord_id"}
+              />
+            </FormControl>
+            <br/>
+            <FormControl id='email'>
+              <FormLabel>Your Email</FormLabel>
+              <Input type='text'
+                     placeholder={"example@example.com"}
+                     name={"email"}
 
-            />
-          </FormControl>
-          <FormControl id='location'>
-            <FormLabel>Your location</FormLabel>
-            <Input type='text'
-                   placeholder={""}
-                   name={"location"}
+              />
+            </FormControl>
+            <FormControl id='location'>
+              <FormLabel>Your location</FormLabel>
+              <Input type='text'
+                     placeholder={""}
+                     name={"location"}
 
-            />
-          </FormControl>
-          <FormControl id='device'>
-            <FormLabel>Your device</FormLabel>
-            <Input type='text'
-                   placeholder={""}
-                   name={"device"}
+              />
+            </FormControl>
+            <FormControl id='device'>
+              <FormLabel>Your device</FormLabel>
+              <Input type='text'
+                     placeholder={""}
+                     name={"device"}
 
-            />
-          </FormControl>
-          <FormControl id='os'>
-            <FormLabel>Your OS version</FormLabel>
-            <Input type='text'
-                   placeholder={""}
-                   name={"os"}
+              />
+            </FormControl>
+            <FormControl id='os'>
+              <FormLabel>Your OS version</FormLabel>
+              <Input type='text'
+                     placeholder={""}
+                     name={"os"}
 
-            />
-          </FormControl>
-          <FormControl id='info'>
-            <FormLabel>Any additional information</FormLabel>
-            <Textarea type='text'
-                      placeholder={""}
-                      name={"info"}
+              />
+            </FormControl>
+            <FormControl id='info'>
+              <FormLabel>Any additional information</FormLabel>
+              <Textarea type='text'
+                        placeholder={""}
+                        name={"info"}
 
-            />
-          </FormControl>
-          <Button
-            mt={4}
-            colorScheme='teal'
-            type='submit'
-          >
-            Submit
-          </Button>
-        </form>
+              />
+            </FormControl>
+            <Button
+              mt={4}
+              colorScheme='teal'
+              type='submit'
+            >
+              Submit
+            </Button>
+          </form>
+          <Button onClick={exportData}>Export Data</Button>
+        </div>
       }
+
     </div>
   )
 }
