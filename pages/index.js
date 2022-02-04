@@ -1,5 +1,5 @@
 /* pages/index.js */
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {ethers} from 'ethers'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
@@ -9,6 +9,7 @@ const ConnectWallet = () => {
   const [account, setAccount] = useState('')
   const [connection, setConnection] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
+  // const [rawProvider,setRawProvider]=useState(undefined);
 
   async function getWeb3Modal() {
     let Torus = (await import('@toruslabs/torus-embed')).default
@@ -33,8 +34,13 @@ const ConnectWallet = () => {
   async function connect() {
     const web3Modal = await getWeb3Modal()
     const connection = await web3Modal.connect()
+    const rawProvider = connection;
     const provider = new ethers.providers.Web3Provider(connection)
     const accounts = await provider.listAccounts()
+    rawProvider.on("accountsChanged", (accounts) => {
+      console.log("Accounts changed")
+      setTimeout(() => window.location.reload(), 1);
+    });
     setConnection(connection)
     setAccount(accounts[0])
   }
